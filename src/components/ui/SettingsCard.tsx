@@ -49,7 +49,7 @@ export function Toggle({
       <input
         type="checkbox"
         className="sr-only peer"
-        defaultChecked={defaultChecked}
+        checked={defaultChecked}
         onChange={(e) => onChange?.(e.target.checked)}
       />
       <div className="w-9 h-5 bg-zinc-700 peer-checked:bg-brand-400 rounded-full transition-colors" />
@@ -60,20 +60,23 @@ export function Toggle({
 
 export function TextInput({
   placeholder,
-  defaultValue,
+  defaultValue = "",
   type = "text",
   className,
+  onChange,
 }: {
   placeholder?: string;
   defaultValue?: string;
   type?: string;
   className?: string;
+  onChange?: (value: string) => void;
 }) {
   return (
     <input
       type={type}
       placeholder={placeholder}
-      defaultValue={defaultValue}
+      value={defaultValue}
+      onChange={(e) => onChange?.(e.target.value)}
       className={clsx(
         "w-52 px-3 py-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-brand-400 transition-colors",
         className,
@@ -84,18 +87,23 @@ export function TextInput({
 
 export function Select({
   options,
-  defaultValue,
+  value,
+  onChange,
 }: {
-  options: string[];
-  defaultValue?: string;
+  options: { value: string; label: string }[];
+  value?: string;
+  onChange?: (value: string) => void;
 }) {
   return (
     <select
-      defaultValue={defaultValue}
+      value={value}
+      onChange={(e) => onChange?.(e.target.value)}
       className="px-3 py-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-zinc-100 focus:outline-none focus:border-brand-400 transition-colors cursor-pointer"
     >
-      {options.map((o) => (
-        <option key={o}>{o}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
       ))}
     </select>
   );
@@ -104,17 +112,24 @@ export function Select({
 export function SaveButton({
   onClick,
   label = "Save changes",
+  loading = false,
 }: {
   onClick?: () => void;
   label?: string;
+  loading?: boolean;
 }) {
   return (
     <div className="flex justify-end mt-4">
       <button
         onClick={onClick}
-        className="px-4 py-2 bg-brand-400 hover:bg-brand-600 text-brand-900 font-medium text-sm rounded-lg transition-colors"
+        disabled={loading}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-brand-400 hover:bg-brand-600 disabled:bg-zinc-700 disabled:text-zinc-400 disabled:cursor-not-allowed text-brand-900 font-medium text-sm rounded-lg transition-colors"
       >
-        {label}
+        {loading && (
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        )}
+
+        {loading ? "Saving..." : label}
       </button>
     </div>
   );

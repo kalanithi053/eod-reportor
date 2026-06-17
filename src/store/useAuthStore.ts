@@ -6,12 +6,19 @@ export interface User {
   name: string;
   email: string;
   userProfileUrl: string;
-  configuration: Configuration;
+  configuration: Partial<Configuration>;
   createdAt: Date;
   updatedAt: Date;
   __v: number;
 }
-
+export interface SheetConfiguration {
+  id: string | null;
+  sheetTabName: string | null;
+  taskNameIndex: number | null;
+  durationIndex: number | null;
+  statusIndex: number | null;
+  dateIndex: number | null;
+}
 export interface Configuration {
   validatedGoogle: boolean;
   googleRefreshToken: string;
@@ -21,7 +28,7 @@ export interface Configuration {
   protalId: string | null;
   zohoUserId: string | null;
   projects: any[];
-  sheet: string | null;
+  sheet: SheetConfiguration;
   eodMailRecipient: string | null;
   jobFailureTriggerRecipient: string | null;
 }

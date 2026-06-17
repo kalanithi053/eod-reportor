@@ -1,22 +1,57 @@
 "use client";
 
+import { buildPayload } from "@/builders/user.builder";
+import { cronOptions } from "@/common/cronOptions";
+import templateService from "@/service/template.service";
 import { useUserStore } from "@/store/useAuthStore";
+import { useEffect, useState } from "react";
 import {
   FieldRow,
   SaveButton,
   Select,
   SettingsCard,
   TextInput,
-  Toggle,
 } from "../ui/SettingsCard";
 
 export function ProfileTab() {
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
+  const [form, setForm] = useState<Record<string, any>>({});
+  const [loading, setLoading] = useState(false);
+  const handleChange = (key: keyof typeof form, value: string | boolean) => {
+    setForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+  useEffect(() => {
+    setForm({
+      name: user?.name ?? "",
+      eodMailRecipient: user?.configuration?.eodMailRecipient ?? "",
+      jobFailureTriggerRecipient:
+        user?.configuration?.jobFailureTriggerRecipient ?? "",
+      cronOption: user?.configuration?.cronOption ?? "",
+    });
+  }, [user]);
+  console.log(form);
+  const triggerOnSave = async () => {
+    setLoading(true);
+    const payload = buildPayload(form, user ?? {});
+    const res = await templateService.updateCurrentUser(payload);
+    if (res?.success) {
+      console.log("suceess");
+      setUser(res?.data);
+    }
+    setLoading(false);
+  };
   return (
     <div>
       <SettingsCard title="Your profile">
         <FieldRow label="Display name">
-          <TextInput defaultValue={user?.name ?? ""} placeholder="Your name" />
+          <TextInput
+            defaultValue={form.name}
+            onChange={(value) => handleChange("name", value)}
+            placeholder="Your name"
+          />
         </FieldRow>
         <FieldRow label="Email" hint="Linked to your Google account">
           <span className="text-sm text-zinc-500">{user?.email ?? "—"}</span>
@@ -25,17 +60,11 @@ export function ProfileTab() {
           label="EOD mail recipient"
           hint="Who receives the daily summary"
         >
-          <TextInput placeholder="manager@company.com" type="email" />
-        </FieldRow>
-        <FieldRow label="Timezone">
-          <Select
-            options={[
-              "Asia/Kolkata (IST)",
-              "UTC",
-              "America/New_York (EST)",
-              "America/Los_Angeles (PST)",
-            ]}
-            defaultValue="Asia/Kolkata (IST)"
+          <TextInput
+            defaultValue={form.eodMailRecipient}
+            onChange={(value) => handleChange("eodMailRecipient", value)}
+            placeholder="manager@company.com"
+            type="email"
           />
         </FieldRow>
       </SettingsCard>
@@ -45,19 +74,14 @@ export function ProfileTab() {
           label="Job failure alerts"
           hint="Get notified when a cron job fails"
         >
-          <Toggle defaultChecked />
-        </FieldRow>
-        <FieldRow
-          label="Sync success summary"
-          hint="Daily summary of all synced tasks"
-        >
-          <Toggle defaultChecked />
-        </FieldRow>
-        <FieldRow
-          label="Token expiry warnings"
-          hint="Alert 24h before OAuth token expires"
-        >
-          <Toggle defaultChecked />
+          <TextInput
+            defaultValue={form.jobFailureTriggerRecipient}
+            onChange={(value) =>
+              handleChange("jobFailureTriggerRecipient", value)
+            }
+            placeholder="manager@company.com"
+            type="email"
+          />
         </FieldRow>
       </SettingsCard>
 
@@ -67,25 +91,14 @@ export function ProfileTab() {
           hint="Which mode new crons use by default"
         >
           <Select
-            options={[
-              "Mode 1 — EOD mail only",
-              "Mode 2 — Create task + log → mail",
-              "Mode 3 — Log only → mail",
-              "Mode 4 — Upsert task + log → mail",
-              "Mode 5 — Update status + log → mail",
-            ]}
-            defaultValue="Mode 2 — Create task + log → mail"
+            options={cronOptions}
+            value={form.cronOption}
+            onChange={(value) => handleChange("cronOption", value)}
           />
-        </FieldRow>
-        <FieldRow
-          label="Default cron schedule"
-          hint="Default time for new jobs (24h format)"
-        >
-          <TextInput placeholder="18:00" className="w-24" />
         </FieldRow>
       </SettingsCard>
 
-      <SaveButton />
+      <SaveButton loading={loading} onClick={() => triggerOnSave()} />
     </div>
   );
 }

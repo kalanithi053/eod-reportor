@@ -65,6 +65,7 @@ export default function Connect() {
 
   useEffect(() => {
     const token = searchParams.get("token");
+    const path = searchParams.get("path");
 
     if (token) {
       Cookies.set("access_token", token, {
@@ -74,8 +75,8 @@ export default function Connect() {
       });
 
       router.replace("/dashboard");
-    } else {
-      window.location.reload();
+    } else if (path) {
+      window.location.href = path;
     }
   }, [searchParams, router]);
 

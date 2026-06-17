@@ -4,10 +4,8 @@ import { useUserStore } from "@/store/useAuthStore";
 import {
   ActionButton,
   FieldRow,
-  Select,
   SettingsCard,
   StatusPill,
-  Toggle,
 } from "../ui/SettingsCard";
 
 export function OAuthTab() {
@@ -19,7 +17,6 @@ export function OAuthTab() {
   const revokeZohoOAuth = async () => {
     const res = await templateService.revokeZohoOAuth();
     setUser(res.data);
-    console.log(res);
   };
   return (
     <div>
@@ -47,21 +44,6 @@ export function OAuthTab() {
               Revoke
             </ActionButton>
           )}
-        </FieldRow>
-      </SettingsCard>
-
-      <SettingsCard title="Session & tokens">
-        <FieldRow
-          label="Auto-refresh tokens"
-          hint="Refresh OAuth tokens before they expire"
-        >
-          <Toggle defaultChecked />
-        </FieldRow>
-        <FieldRow label="Session timeout" hint="Sign out after inactivity">
-          <Select
-            options={["8 hours", "24 hours", "7 days"]}
-            defaultValue="8 hours"
-          />
         </FieldRow>
       </SettingsCard>
     </div>
