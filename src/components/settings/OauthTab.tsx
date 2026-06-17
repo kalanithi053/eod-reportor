@@ -19,6 +19,7 @@ export function OAuthTab() {
     setUser(res.data);
     // TODO
   };
+  // TODO tab=oauth&status=success&Module=zoho check on the search param and trigger toast for oauth success for zoho
   return (
     <div>
       <SettingsCard title="Google OAuth">
