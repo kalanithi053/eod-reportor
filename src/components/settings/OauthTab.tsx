@@ -1,6 +1,7 @@
 "use client";
 import templateService from "@/service/template.service";
 import { useUserStore } from "@/store/useAuthStore";
+import { useAlert } from "../ui/Alert";
 import {
   ActionButton,
   FieldRow,
@@ -14,14 +15,16 @@ export function OAuthTab() {
     const res = await templateService.triggerZohoOAuth();
     window.location.href = res?.data;
   };
+  const { showAlert, AlertContainer } = useAlert();
   const revokeZohoOAuth = async () => {
     const res = await templateService.revokeZohoOAuth();
     setUser(res.data);
-    // TODO:
+    showAlert({ type: "warning", message: "Zoho access revoked." });
   };
   // TODO tab=oauth&status=success&Module=zoho check on the search param and trigger toast for oauth success for zoho
   return (
     <div>
+      <AlertContainer />
       <SettingsCard title="Google OAuth">
         <FieldRow label="Google account" hint={user?.email ?? "Not signed in"}>
           <StatusPill connected={!!user?.configuration?.validatedGoogle} />

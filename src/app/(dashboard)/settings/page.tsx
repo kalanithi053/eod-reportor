@@ -7,6 +7,7 @@ import { useUserStore } from "@/store/useAuthStore";
 import clsx from "clsx";
 import { Folders, KeyRound, Table2, User } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 const TABS = [
   { id: "oauth", label: "OAuth", icon: KeyRound },
@@ -19,10 +20,18 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("tab") ?? "oauth";
-const {user}=useUserStore()
+  const { user } = useUserStore();
   const setTab = (tab: string) => {
     router.push(`/settings?tab=${tab}`, { scroll: false });
   };
+
+  const isSheetDisabled = user?.configuration?.cronOption === "EOD";
+
+  useEffect(() => {
+    if (activeTab === "sheet" && user?.configuration?.cronOption === "EOD") {
+      router.replace("/settings?tab=oauth");
+    }
+  }, [activeTab, user, router]);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -42,17 +51,17 @@ const {user}=useUserStore()
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                disabled={id=== "sheet" && user?.configuration?.cronOption === "EOD"}
+                disabled={id === "sheet" && isSheetDisabled}
                 className={clsx(
                   "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-all duration-150",
                   activeTab === id
                     ? "bg-brand-400/10 text-brand-400 font-medium"
                     : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100",
+                  id === "sheet" &&
+                    isSheetDisabled &&
+                    "cursor-not-allowed opacity-50 hover:bg-transparent hover:text-zinc-400",
                 )}
               >
-                {
-                  // TODO Diable style
-                }
                 <Icon className="w-3.5 h-3.5 flex-shrink-0" />
                 {label}
               </button>
@@ -63,7 +72,7 @@ const {user}=useUserStore()
         {/* Tab content */}
         <div className="flex-1 min-w-0">
           {activeTab === "oauth" && <OAuthTab />}
-          {activeTab === "sheet" && <SheetTab />}
+          {activeTab === "sheet" && !isSheetDisabled && <SheetTab />}
           {activeTab === "projects" && <ProjectsTab />}
           {activeTab === "profile" && <ProfileTab />}
         </div>

@@ -5,6 +5,7 @@ import { cronOptions } from "@/common/cronOptions";
 import templateService from "@/service/template.service";
 import { useUserStore } from "@/store/useAuthStore";
 import { useEffect, useState } from "react";
+import { useAlert } from "../ui/Alert";
 import {
   FieldRow,
   SaveButton,
@@ -18,6 +19,7 @@ export function ProfileTab() {
   const { user, setUser } = useUserStore();
   const [form, setForm] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
+  const { showAlert, AlertContainer } = useAlert();
   const handleChange = (key: keyof typeof form, value: string | boolean) => {
     setForm((prev) => ({
       ...prev,
@@ -59,9 +61,14 @@ export function ProfileTab() {
       const res = await templateService.updateCurrentUser(payload);
       if (res?.success) {
         setUser(res?.data);
-        // TODO
+        showAlert({
+          type: "success",
+          message: "Settings saved.",
+          duration: 4000,
+        });
       }
     } catch (e: any) {
+      showAlert({ type: "error", message: e.message, duration: 5000 });
       console.error(e.message);
     } finally {
       setLoading(false);
@@ -69,6 +76,7 @@ export function ProfileTab() {
   };
   return (
     <div>
+      <AlertContainer />
       <SettingsCard title="Your profile">
         <FieldRow label="Display name">
           <TextInput
