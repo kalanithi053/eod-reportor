@@ -73,7 +73,7 @@ function ConnectHandler() {
         sameSite: "strict",
       });
 
-      router.replace("/dashboard");
+      window.location.href = "/dashboard";
     } else if (path) {
       window.location.href = path;
     }
