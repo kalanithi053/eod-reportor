@@ -11,8 +11,4 @@ export const cronOptions = [
     value: "LogOnly",
     label: "Mode 3 — Log only → mail",
   },
-  {
-    value: "EndToEnd",
-    label: "Mode 4 — Upsert task + Update status + log → mail",
-  },
 ];
